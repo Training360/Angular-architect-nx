@@ -18,6 +18,31 @@ npx nx@latest init
 ✔ Test runner to use for end to end (E2E) tests · playwright
 ✔ Enable distributed caching to make your CI faster · Yes
 
-## Angular code generation
+### Angular code generation
 [code generation](https://nx.dev/angular-tutorial/1-code-generation)
+
+### Graph
+npx nx graph
+
+### List all of commands
+npx nx help
+npx nx list @nx/angular
+
+### CheetSheet
+![CheetSheet](./CHEATSHEET.md)
+
+### Serving
+- npx nx serve --project <projectname>  
+or
+- npx nx serve <projectname>
+
+### Building
+- npx nx build --project <projectname>  
+or
+- npx nx build <projectname>
+
+
+
+
+
 
