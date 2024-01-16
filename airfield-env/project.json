@@ -1,26 +1,25 @@
 {
-  "name": "airfield",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "airfield-env",
+  "$schema": "node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
-  "prefix": "airfield",
-  "sourceRoot": "apps/airfield/src",
+  "prefix": "airfield-env",
+  "sourceRoot": "./src",
   "tags": [],
   "targets": {
     "build": {
       "executor": "@nx/angular:webpack-browser",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/apps/airfield",
-        "index": "apps/airfield/src/index.html",
-        "browser": "apps/airfield/src/main.ts",
+        "outputPath": "dist/airfield-env",
+        "index": "./src/index.html",
+        "main": "./src/main.ts",
         "polyfills": ["zone.js"],
-        "tsConfig": "apps/airfield/tsconfig.app.json",
-        "inlineStyleLanguage": "scss",
-        "assets": ["apps/airfield/src/favicon.ico", "apps/airfield/src/assets"],
-        "styles": ["apps/airfield/src/styles.scss"],
+        "tsConfig": "./tsconfig.app.json",
+        "assets": ["./src/favicon.ico", "./src/assets"],
+        "styles": ["./src/styles.css"],
         "scripts": [],
         "customWebpackConfig": {
-          "path": "apps/airfield/webpack.config.js"
+          "path": "./webpack.config.js"
         }
       },
       "configurations": {
@@ -40,9 +39,12 @@
           "outputHashing": "all"
         },
         "development": {
+          "buildOptimizer": false,
           "optimization": false,
+          "vendorChunk": true,
           "extractLicenses": false,
-          "sourceMap": true
+          "sourceMap": true,
+          "namedChunks": true
         }
       },
       "defaultConfiguration": "production"
@@ -51,10 +53,10 @@
       "executor": "@nx/angular:dev-server",
       "configurations": {
         "production": {
-          "buildTarget": "airfield:build:production"
+          "buildTarget": "airfield-env:build:production"
         },
         "development": {
-          "buildTarget": "airfield:build:development"
+          "buildTarget": "airfield-env:build:development"
         }
       },
       "defaultConfiguration": "development"
@@ -62,18 +64,21 @@
     "extract-i18n": {
       "executor": "@angular-devkit/build-angular:extract-i18n",
       "options": {
-        "buildTarget": "airfield:build"
+        "buildTarget": "airfield-env:build"
       }
     },
     "lint": {
       "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"]
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["./src"]
+      }
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "outputs": ["{workspaceRoot}/coverage/{projectName}"],
       "options": {
-        "jestConfig": "apps/airfield/jest.config.ts"
+        "jestConfig": "jest.config.ts"
       }
     }
   }
