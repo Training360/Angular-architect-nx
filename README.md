@@ -135,10 +135,40 @@ NX_API_HOST=localhost
 - Get an environment variable
 
 ```typescript
-console.log('>>> NX_API_URL', process.env['NX_API_URL']);
-console.log('>>> NX_API_HOST', process.env['NX_API_HOST']);
+console.log(">>> NX_API_URL", process.env["NX_API_URL"]);
+console.log(">>> NX_API_HOST", process.env["NX_API_HOST"]);
 ```
 
-------------------------------
+---
+
 ## Module Federation
 
+### Create an empty workspace
+
+npx create-nx-workspace@latest
+
+- Settings:
+
+```shell
+✔ Where would you like to create your workspace? · nx-mf
+✔ Which stack do you want to use? · none
+✔ Package-based monorepo, integrated monorepo, or standalone project? · integrated
+✔ Enable distributed caching to make your CI faster · Yes
+```
+
+### Install the framework specific plugin
+
+- code nx-mf
+- npm i -D @nx/angular
+
+### Generating host and remote applications
+
+- npx nx g @nx/angular:host store --ssr --remotes=product,checkout
+
+### Serving the store app
+
+- `npx nx serve-ssr store` watching the store
+- `npx nx serve-ssr store --devRemotes=checkout` watching the checkout too
+
+### Dynamic Federation
+- 
