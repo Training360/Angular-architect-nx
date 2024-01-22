@@ -171,4 +171,190 @@ npx create-nx-workspace@latest
 - `npx nx serve-ssr store --devRemotes=checkout` watching the checkout too
 
 ### Dynamic Federation
-- 
+
+- npx create-nx-workspace ng-mf
+- Setup:
+
+```shell
+Need to install the following packages:
+create-nx-workspace@17.2.8
+Ok to proceed? (y) y
+
+ >  NX   Let's create a new workspace [https://nx.dev/getting-started/intro]
+
+✔ Which stack do you want to use? · angular
+✔ Integrated monorepo, or standalone project? · integrated
+✔ Application name · angular-mf
+✔ Which bundler would you like to use? · webpack
+✔ Default stylesheet format · css
+✔ Do you want to enable Server-Side Rendering (SSR) and Static Site Generation (SSG/Prerendering)? · No
+
+✔ Test runner to use for end to end (E2E) tests · none
+✔ Enable distributed caching to make your CI faster · Yes
+```
+
+### Create the host end the remotes
+
+- code angular-mf
+- npx nx g @nx/angular:host dashboard
+- Setup:
+
+```shell
+npx nx g @nx/angular:host dashboard
+
+>  NX  Generating @nx/angular:host
+
+✔ Which stylesheet format would you like to use? · css
+✔ Which E2E test runner would you like to use? · none
+✔ What should be the project name and where should it be generated? · dashboard @ dashboard
+```
+
+- Login app: `npx nx g @nx/angular:remote login --host=dashboard`
+- Login app and module-federation.config.js files are created.
+- Check:
+  -- [login/module-federation.config.js](./angular-mf/login/module-federation.config.ts)
+  -- [login/webpack.config.js](./angular-mf/login/webpack.config.ts)
+  -- [dashboard/module-federation.config.js](./angular-mf/dashboard/module-federation.config.ts)
+- Create a new Angular lib
+- `npx nx g @nx/angular:lib shared/data-access-user`
+- Create an Angular Service
+- `npx nx g @nx/angular:service user --project=data-access-user`
+
+```typescript
+import { Injectable } from "@angular/core";
+import { BehaviorSubject } from "rxjs";
+@Injectable({
+  providedIn: "root",
+})
+export class UserService {
+  private isUserLoggedIn = new BehaviorSubject(false);
+  isUserLoggedIn$ = this.isUserLoggedIn.asObservable();
+  checkCredentials(username: string, password: string) {
+    if (username === "demo" && password === "demo") {
+      this.isUserLoggedIn.next(true);
+    }
+  }
+  logout() {
+    this.isUserLoggedIn.next(false);
+  }
+}
+```
+
+- [index.ts](./angular-mf/shared/data-access-user/src/index.ts) add this:
+
+```typescript
+export * from "./lib/user.service";
+```
+
+### Login Application
+
+- Update [entry.component.ts](./angular-mf/login/src/app/remote-entry/entry.component.ts)
+
+```typescript
+import { CommonModule } from "@angular/common";
+import { Component } from "@angular/core";
+import { FormsModule } from "@angular/forms";
+import { UserService } from "shared/data-access-user/src/lib/user.service";
+@Component({
+  selector: "angular-mf-login-entry",
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  template: `
+    <div class="login-app">
+      <form class="login-form" (ngSubmit)="login()">
+        <label>
+          Username:
+          <input type="text" name="username" [(ngModel)]="username" />
+        </label>
+        <label>
+          Password:
+          <input type="password" name="password" [(ngModel)]="password" />
+        </label>
+        <button type="submit">Login</button>
+      </form>
+      <div *ngIf="isLoggedIn$ | async">User is logged in!</div>
+    </div>
+  `,
+  styles: [
+    `
+      .login-app {
+        width: 30vw;
+        border: 2px dashed black;
+        padding: 8px;
+        margin: 0 auto;
+      }
+      .login-form {
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        margin: 0 auto;
+        padding: 8px;
+      }
+      label {
+        display: block;
+      }
+    `,
+  ],
+})
+export class RemoteEntryComponent {
+  username = "";
+  password = "";
+  isLoggedIn$ = this.userService.isUserLoggedIn$;
+  constructor(private userService: UserService) {}
+  login() {
+    this.userService.checkCredentials(this.username, this.password);
+  }
+}
+```
+
+- Run dev server: `npx nx run login:serve`
+- Test the login component: http://localhost:4201
+
+### Dashboard Application
+
+- IMPORTANT UPDATES [entry.component.ts](./angular-mf/login/src/app/remote-entry/entry.component.ts), [app.component.ts](./angular-mf/dashboard/src/app/app.component.ts):
+
+```typescript
+import { UserService } from "@angular-mf/data-access-user";
+```
+
+### Converting the Dashboard to dynamic loading
+
+- Steps:
+  - fetch the remote definitions
+  - set the remote defs for Webpack
+  - change loading method
+
+* Add [module-federation.manifest.json](./angular-mf/dashboard/src/assets/module-federation.manifest.json)
+* Update [main.ts](./angular-mf/dashboard/src/main.ts)
+
+```typescript
+import { setRemoteDefinitions } from "@nx/angular/mf";
+
+fetch("/assets/module-federation.manifest.json")
+  .then((res) => res.json())
+  .then((definitions) => setRemoteDefinitions(definitions))
+  .then(() => import("./bootstrap").catch((err) => console.error(err)));
+```
+
+- Update [module-federation.config.ts](./angular-mf/dashboard/module-federation.config.ts)
+
+```typescript
+module.exports = {
+  name: "dashboard",
+  remotes: [],
+};
+```
+
+- Update [app.routes.ts](./angular-mf/dashboard/src/app/app.routes.ts)
+
+```typescript
+{
+    path: 'login',
+    loadChildren: () =>
+        loadRemoteModule('login', './Module').then(
+            (m) => m.RemoteEntryModule
+         ),
+}
+```
+- Run: `npx nx serve dashboard --devRemotes=login`
