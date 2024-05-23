@@ -335,6 +335,12 @@ import { UserService } from "@angular-mf/data-access-user";
   - change loading method
 
 * Add [module-federation.manifest.json](./angular-mf/dashboard/src/assets/module-federation.manifest.json)
+```json
+{
+  "login": "http://localhost:4201"
+}
+```
+
 * Update [main.ts](./angular-mf/dashboard/src/main.ts)
 
 ```typescript
@@ -361,9 +367,26 @@ module.exports = {
 {
     path: 'login',
     loadChildren: () =>
-        loadRemoteModule('login', './Module').then(
-            (m) => m.RemoteEntryModule
-         ),
-}
+      loadRemoteModule('login', './Routes').then((m) => m.remoteRoutes),
+  },
 ```
 - Run: `npx nx serve dashboard --devRemotes=login`
+
+- Watch the service from the dashboard:
+```typescript
+import { UserService } from "@p-df/shared/data-access-user";
+// ...
+userService = inject(UserService);
+isLoggedIn$ = this.userService.isUserLoggedIn$;
+```
+- app.component.html:
+
+```html
+@if (isLoggedIn$ | async) {
+  <h2>User is logged in</h2>
+}
+```
+
+## Conclusion
+
+- Angular module federation is hard, but it's fun!
