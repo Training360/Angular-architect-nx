@@ -76,7 +76,7 @@ npm install -D @types/node
     "options": {
       // NOTE: This file needs to be created.
       "customWebpackConfig": {
-        "path": "./webpack.config.js"
+        "path": "apps/{projectName}/webpack.config.js"
       }
       // snip
     }
@@ -148,7 +148,7 @@ console.log(">>> NX_API_HOST", process.env["NX_API_HOST"]);
 - Use environment variables in the service. TADA
 ---
 
-## Module Federation
+## Module Federation ------------------------>
 
 ### Create an empty workspace
 
@@ -177,7 +177,9 @@ npx create-nx-workspace@latest
 - `npx nx serve-ssr store` watching the store
 - `npx nx serve-ssr store --devRemotes=checkout` watching the checkout too
 
-### Dynamic Federation
+- __Server ports are in the corresponding project.json file!__
+
+### Dynamic Federation ----------------------------->
 
 - npx create-nx-workspace ng-mf
 - Setup:
