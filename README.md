@@ -4,7 +4,10 @@ Architect-level Angular course about Nx workspaces
 
 ## Base setup for Angular
 
-npx nx@latest init
+`npx nx@latest init`
+or
+`npx create-nx-workspace@latest angular-monorepo --preset=angular-monorepo`
+
 ✔ Where should your workspace be created? · false
 
 > NX Let's create a new workspace [https://nx.dev/getting-started/intro]
@@ -55,6 +58,7 @@ npx nx list @nx/angular
 
 - [Documentation](https://nx.dev/recipes/angular/use-environment-variables-in-angular)
 - `npx nx@latest init` create a new Angular app as standalone with webpack builder
+- Open the new project: `code airfield-env -r`
 - Install @types/node for using process.env variables
 
 ```shell
@@ -139,6 +143,9 @@ console.log(">>> NX_API_URL", process.env["NX_API_URL"]);
 console.log(">>> NX_API_HOST", process.env["NX_API_HOST"]);
 ```
 
+- Generate a service:
+- `npx nx g @nx/angular:service user --project=p-env`
+- Use environment variables in the service. TADA
 ---
 
 ## Module Federation

@@ -1,0 +1,82 @@
+{
+  "name": "p-env",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "app",
+  "sourceRoot": "apps/p-env/src",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/angular:webpack-browser",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/p-env",
+        "index": "apps/p-env/src/index.html",
+        "main": "apps/p-env/src/main.ts",
+        "polyfills": ["zone.js"],
+        "tsConfig": "apps/p-env/tsconfig.app.json",
+        "inlineStyleLanguage": "scss",
+        "assets": ["apps/p-env/src/favicon.ico", "apps/p-env/src/assets"],
+        "styles": ["apps/p-env/src/styles.scss"],
+        "scripts": [],
+        "customWebpackConfig": {
+          "path": "apps/p-env/webpack.config.js"
+        }
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "2kb",
+              "maximumError": "4kb"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "buildOptimizer": false,
+          "optimization": false,
+          "vendorChunk": true,
+          "extractLicenses": false,
+          "sourceMap": true,
+          "namedChunks": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "executor": "@nx/angular:dev-server",
+      "configurations": {
+        "production": {
+          "buildTarget": "p-env:build:production"
+        },
+        "development": {
+          "buildTarget": "p-env:build:development"
+        }
+      },
+      "defaultConfiguration": "development"
+    },
+    "extract-i18n": {
+      "executor": "@angular-devkit/build-angular:extract-i18n",
+      "options": {
+        "buildTarget": "p-env:build"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/p-env/jest.config.ts"
+      }
+    }
+  }
+}
