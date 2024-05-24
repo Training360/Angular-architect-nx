@@ -170,7 +170,7 @@ npx create-nx-workspace@latest
 
 ### Generating host and remote applications
 
-- npx nx g @nx/angular:host store --ssr --remotes=product,checkout
+- npx nx g @nx/angular:host store --ssr --remotes=product,checkout --directory apps
 
 ### Serving the store app
 
